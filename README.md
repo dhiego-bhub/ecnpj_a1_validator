@@ -1,0 +1,1 @@
+# ecnpj_a1_validator
