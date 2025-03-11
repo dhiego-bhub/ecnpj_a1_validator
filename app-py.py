@@ -87,20 +87,8 @@ def main():
             display_certificate_info(certificate_info)
             
         except Exception as e:
-            st.markdown("""
-            <div style="background-color: #CF0000; color: white; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                <h3 style="margin-top: 0;">❌ Erro ao processar o certificado</h3>
-                <p>Verifique se a senha está correta ou se o arquivo é válido.</p>
-                <details>
-                    <summary>Detalhes técnicos</summary>
-                    <code style="color: #EEEEEE; display: block; margin-top: 10px; word-break: break-all;">
-            """, unsafe_allow_html=True)
-            st.code(str(e), language="")
-            st.markdown("""
-                    </code>
-                </details>
-            </div>
-            """, unsafe_allow_html=True)
+            st.error(f"Erro ao processar o certificado: {str(e)}")
+            st.error("Verifique se a senha está correta ou se o arquivo é válido.")
 
 def process_certificate(pfx_data, password):
     # Carregar o certificado PFX
