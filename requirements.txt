@@ -1,3 +1,5 @@
 streamlit>=1.22.0
 cryptography>=40.0.0
 pytz>=2023.3
+cffi>=1.15.0
+pycparser>=2.21
