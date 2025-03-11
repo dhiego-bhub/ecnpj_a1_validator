@@ -66,11 +66,35 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
+    # Inicializa as variáveis de estado para controle
+    if 'last_uploaded_file' not in st.session_state:
+        st.session_state.last_uploaded_file = None
+    
     # Upload do arquivo de certificado
     uploaded_file = st.file_uploader("Faça upload do seu certificado (.pfx ou .p12)", type=["pfx", "p12"])
     
-    # Campo para a senha
-    pfx_password = st.text_input("Digite a senha do certificado", type="password")
+    # Verificar se o arquivo foi alterado
+    if uploaded_file is not None and (st.session_state.last_uploaded_file is None or 
+                                     uploaded_file.name != st.session_state.last_uploaded_file):
+        # Atualiza o arquivo na sessão
+        st.session_state.last_uploaded_file = uploaded_file.name
+        # Limpa o campo de senha usando JavaScript
+        st.markdown("""
+        <script>
+            setTimeout(function() {
+                document.querySelector('input[type="password"]').value = '';
+            }, 100);
+        </script>
+        """, unsafe_allow_html=True)
+        # Força a reinicialização da senha no estado da sessão
+        if 'password' in st.session_state:
+            del st.session_state.password
+    
+    # Campo para a senha com estado de sessão
+    if 'password' not in st.session_state:
+        st.session_state.password = ""
+    
+    pfx_password = st.text_input("Digite a senha do certificado", type="password", key="password")
     
     if uploaded_file is not None and pfx_password:
         try:
