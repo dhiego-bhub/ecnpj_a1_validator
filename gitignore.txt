@@ -1,0 +1,33 @@
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Ambiente virtual Python
+venv/
+env/
+.env/
+.venv/
+
+# Arquivos de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Arquivos de certificado (para prevenir upload acidental)
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+
+# Arquivos específicos do Streamlit
+.streamlit/secrets.toml
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
