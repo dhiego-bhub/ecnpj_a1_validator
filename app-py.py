@@ -8,17 +8,63 @@ import pytz
 st.set_page_config(
     page_title="Validador de Certificado Digital",
     page_icon="🔐",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
+# Personalização global do tema
+st.markdown("""
+<style>
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 800px;
+    }
+    .stApp {
+        background-color: #121212;
+        color: white;
+    }
+    h1, h2, h3 {
+        color: white;
+    }
+    .stButton button {
+        background-color: #1E3A5F;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 0.5rem 1rem;
+    }
+    .stButton button:hover {
+        background-color: #2E5A8F;
+    }
+    .stTextInput input, .stFileUploader {
+        border-radius: 5px;
+    }
+    div[data-testid="stFileUploader"] {
+        background-color: #1E3A5F;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    div[data-testid="stFileUploader"] button {
+        background-color: #4169E1;
+        color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 def main():
-    st.title("Validador de Certificado Digital")
+    st.markdown("""
+    <h1 style="text-align: center; margin-bottom: 2rem;">
+        <span style="color: #4169E1;">🔐 Validador de Certificado Digital</span>
+    </h1>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
-    Esta aplicação permite validar certificados digitais A1 (PFX/P12).
-    
-    Faça upload do seu arquivo de certificado e informe a senha para visualizar suas informações.
-    """)
+    <div style="background-color: #1E3A5F; padding: 15px; border-radius: 5px; margin-bottom: 30px;">
+        <p>Esta aplicação permite validar certificados digitais A1 (PFX/P12).</p>
+        <p>Faça upload do seu arquivo de certificado e informe a senha para visualizar suas informações.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Upload do arquivo de certificado
     uploaded_file = st.file_uploader("Faça upload do seu certificado (.pfx ou .p12)", type=["pfx", "p12"])
@@ -41,8 +87,20 @@ def main():
             display_certificate_info(certificate_info)
             
         except Exception as e:
-            st.error(f"Erro ao processar o certificado: {str(e)}")
-            st.error("Verifique se a senha está correta ou se o arquivo é válido.")
+            st.markdown("""
+            <div style="background-color: #CF0000; color: white; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                <h3 style="margin-top: 0;">❌ Erro ao processar o certificado</h3>
+                <p>Verifique se a senha está correta ou se o arquivo é válido.</p>
+                <details>
+                    <summary>Detalhes técnicos</summary>
+                    <code style="color: #EEEEEE; display: block; margin-top: 10px; word-break: break-all;">
+            """, unsafe_allow_html=True)
+            st.code(str(e), language="")
+            st.markdown("""
+                    </code>
+                </details>
+            </div>
+            """, unsafe_allow_html=True)
 
 def process_certificate(pfx_data, password):
     # Carregar o certificado PFX
@@ -94,33 +152,85 @@ def display_certificate_info(info):
     
     st.subheader("Informações do Certificado")
     
+    # Estilo CSS personalizado para melhorar o alinhamento
+    st.markdown("""
+    <style>
+    .info-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .info-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .info-value {
+        background-color: #1E3A5F;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+    .status-valid {
+        background-color: #0E6B0E;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+    .status-expired {
+        background-color: #CF0000;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+    .status-warning {
+        background-color: #F39C12;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     col1, col2 = st.columns(2)
     
     with col1:
-        st.write("**Nome do Titular**")
-        st.info(info["common_name"])
+        st.markdown('<div class="info-label">Nome do Titular</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="info-value">{info["common_name"]}</div>', unsafe_allow_html=True)
         
-        st.write("**Organização**")
-        st.info(info["organization"])
+        st.markdown('<div class="info-label">Organização</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="info-value">{info["organization"]}</div>', unsafe_allow_html=True)
         
-        st.write("**E-mail**")
-        st.info(info["email"])
+        st.markdown('<div class="info-label">E-mail</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="info-value">{info["email"]}</div>', unsafe_allow_html=True)
     
     with col2:
-        st.write("**Válido a partir de**")
-        st.info(info["not_before"].strftime("%d/%m/%Y %H:%M:%S"))
+        st.markdown('<div class="info-label">Válido a partir de</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="info-value">{info["not_before"].strftime("%d/%m/%Y %H:%M:%S")}</div>', unsafe_allow_html=True)
         
-        st.write("**Válido até**")
-        st.info(info["not_after"].strftime("%d/%m/%Y %H:%M:%S"))
+        st.markdown('<div class="info-label">Válido até</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="info-value">{info["not_after"].strftime("%d/%m/%Y %H:%M:%S")}</div>', unsafe_allow_html=True)
         
-        st.write("**Status**")
+        st.markdown('<div class="info-label">Status</div>', unsafe_allow_html=True)
         if info["is_valid"]:
-            st.success(f"✅ Válido (Expira em {info['days_remaining']} dias)")
+            st.markdown(f'<div class="status-valid">✅ Válido (Expira em {info["days_remaining"]} dias)</div>', unsafe_allow_html=True)
         else:
             if info["days_remaining"] < 0:
-                st.error(f"❌ Expirado (Há {abs(info['days_remaining'])} dias)")
+                st.markdown(f'<div class="status-expired">❌ Expirado (Há {abs(info["days_remaining"])} dias)</div>', unsafe_allow_html=True)
             else:
-                st.warning(f"⚠️ Ainda não válido")
+                st.markdown(f'<div class="status-warning">⚠️ Ainda não válido</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
