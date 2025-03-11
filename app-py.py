@@ -87,8 +87,20 @@ def main():
             display_certificate_info(certificate_info)
             
         except Exception as e:
-            st.error(f"Erro ao processar o certificado: {str(e)}")
-            st.error("Verifique se a senha está correta ou se o arquivo é válido.")
+            st.markdown("""
+            <div style="background-color: #CF0000; color: white; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                <h3 style="margin-top: 0;">❌ Erro ao processar o certificado</h3>
+                <p>Verifique se a senha está correta ou se o arquivo é válido.</p>
+                <details>
+                    <summary>Detalhes técnicos</summary>
+                    <code style="color: #EEEEEE; display: block; margin-top: 10px; word-break: break-all;">
+            """, unsafe_allow_html=True)
+            st.code(str(e), language="")
+            st.markdown("""
+                    </code>
+                </details>
+            </div>
+            """, unsafe_allow_html=True)
 
 def process_certificate(pfx_data, password):
     # Carregar o certificado PFX
@@ -144,81 +156,116 @@ def display_certificate_info(info):
     st.markdown("""
     <style>
     .info-container {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .info-item {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
     }
     .info-label {
         font-weight: bold;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
+        font-size: 16px;
     }
     .info-value {
         background-color: #1E3A5F;
         color: white;
-        padding: 10px;
+        padding: 12px 15px;
         border-radius: 5px;
-        min-height: 45px;
+        min-height: 50px;
         display: flex;
         align-items: center;
+        word-break: break-word;
+    }
+    .status-container {
+        margin-bottom: 30px;
+        width: 100%;
+    }
+    .status-label {
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 18px;
     }
     .status-valid {
         background-color: #0E6B0E;
         color: white;
-        padding: 10px;
+        padding: 15px;
         border-radius: 5px;
-        min-height: 45px;
-        display: flex;
-        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
     }
     .status-expired {
         background-color: #CF0000;
         color: white;
-        padding: 10px;
+        padding: 15px;
         border-radius: 5px;
-        min-height: 45px;
-        display: flex;
-        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
     }
     .status-warning {
         background-color: #F39C12;
         color: white;
-        padding: 10px;
+        padding: 15px;
         border-radius: 5px;
-        min-height: 45px;
-        display: flex;
-        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown('<div class="info-label">Nome do Titular</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="info-value">{info["common_name"]}</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="info-label">Organização</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="info-value">{info["organization"]}</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="info-label">E-mail</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="info-value">{info["email"]}</div>', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown('<div class="info-label">Válido a partir de</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="info-value">{info["not_before"].strftime("%d/%m/%Y %H:%M:%S")}</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="info-label">Válido até</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="info-value">{info["not_after"].strftime("%d/%m/%Y %H:%M:%S")}</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="info-label">Status</div>', unsafe_allow_html=True)
-        if info["is_valid"]:
-            st.markdown(f'<div class="status-valid">✅ Válido (Expira em {info["days_remaining"]} dias)</div>', unsafe_allow_html=True)
+    # Status destacado no topo
+    st.markdown('<div class="status-label">Status</div>', unsafe_allow_html=True)
+    if info["is_valid"]:
+        st.markdown(f'<div class="status-valid">✅ VÁLIDO (Expira em {info["days_remaining"]} dias)</div>', unsafe_allow_html=True)
+    else:
+        if info["days_remaining"] < 0:
+            st.markdown(f'<div class="status-expired">❌ EXPIRADO (Há {abs(info["days_remaining"])} dias)</div>', unsafe_allow_html=True)
         else:
-            if info["days_remaining"] < 0:
-                st.markdown(f'<div class="status-expired">❌ Expirado (Há {abs(info["days_remaining"])} dias)</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="status-warning">⚠️ Ainda não válido</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="status-warning">⚠️ AINDA NÃO VÁLIDO</div>', unsafe_allow_html=True)
+    
+    # Layout em grid para os demais campos
+    st.markdown('<div class="info-container">', unsafe_allow_html=True)
+    
+    # Coluna 1
+    st.markdown("""
+        <div class="info-item">
+            <div class="info-label">Nome do Titular</div>
+            <div class="info-value">PLACEHOLDER_COMMON_NAME</div>
+        </div>
+    """.replace("PLACEHOLDER_COMMON_NAME", info["common_name"]), unsafe_allow_html=True)
+    
+    # Coluna 2
+    st.markdown("""
+        <div class="info-item">
+            <div class="info-label">Válido a partir de</div>
+            <div class="info-value">PLACEHOLDER_NOT_BEFORE</div>
+        </div>
+    """.replace("PLACEHOLDER_NOT_BEFORE", info["not_before"].strftime("%d/%m/%Y %H:%M:%S")), unsafe_allow_html=True)
+    
+    # Coluna 3
+    st.markdown("""
+        <div class="info-item">
+            <div class="info-label">Organização</div>
+            <div class="info-value">PLACEHOLDER_ORGANIZATION</div>
+        </div>
+    """.replace("PLACEHOLDER_ORGANIZATION", info["organization"]), unsafe_allow_html=True)
+    
+    # Coluna 4
+    st.markdown("""
+        <div class="info-item">
+            <div class="info-label">Válido até</div>
+            <div class="info-value">PLACEHOLDER_NOT_AFTER</div>
+        </div>
+    """.replace("PLACEHOLDER_NOT_AFTER", info["not_after"].strftime("%d/%m/%Y %H:%M:%S")), unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
